@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+	<title>Document</title>
+
+	<style>
+		table {
+			border: 1px solid black;
+		}
+
+		td {
+			height: 20px;
+			width: 50px;
+			border-left: 1px solid black;
+			border-bottom: 1px solid black;
+		}
+	</style>
+</head>
+
+<body>
+</body>
+<script>
+	const $ = document.getElementById.bind(document);
+
+	const IP = 'http://asoran.freeboxos.fr';
+	//const IP = 'localhost';
+	const PORT = 33333;
+	const socket = io(IP + ':' + PORT);
+
+	class Answer {
+		user;
+		anime;
+		op;
+		titre;
+		artist;
+		constructor(user, anime, op, titre, artist) {
+			this.user = user;
+			this.anime = anime;
+			this.op = op;
+			this.titre = titre;
+			this.artist = artist;
+		}
+	}
+
+	const hash = document.location.hash.substring(1);
+	if (hash === 'admin') {
+		let answers = {};
+
+		document.body.innerHTML = `<table id="answers"><tr>
+			<th>User</th><th>Anime</th><th>Op</th><th>titre</th><th>artist</th>
+		</tr></table>`;
+		socket.emit('i_am_admin', 0);
+		socket.on('i_am_admin', (ans) => {
+			answers = ans;
+			console.log(answers);
+			Object.keys(answers).forEach(e => {
+				answers[e].forEach(answer => {
+					$('answers').innerHTML +=
+						`<tr>
+					<td>${answer.user}</td>
+					<td>${answer.anime}</td>
+					<td>${answer.op}</td>
+					<td>${answer.titre}</td>
+					<td>${answer.artist}</td>
+				</tr>`;
+				});
+			});
+		});
+
+		socket.on('new_player', (name) => {
+			answers[name] = new Array();
+		});
+
+		socket.on('answer_admin', (answer) => {
+			console.log(answer);
+			answers[answer.user].push(answer);
+			$('answers').innerHTML +=
+				`<tr>
+					<td>${answer.user}</td>
+					<td>${answer.anime}</td>
+					<td>${answer.op}</td>
+					<td>${answer.titre}</td>
+					<td>${answer.artist}</td>
+				</tr>`;
+		});
+	} else {
+		const name = prompt('username ?');
+		socket.emit('play', name);
+		document.body.innerHTML = `<form id="f">
+	<input type="type" id="anime" placeholder="anime">
+	<input type="type" id="op" placeholder="op">
+	<input type="type" id="titre" placeholder="titre">
+	<input type="type" id="artist" placeholder="artist">
+</form><button id="send" onclick="send()">Send Answer</button>`;
+		function send() {
+			const [anime, op, titre, artist] = [
+				$('anime').value,
+				$('op').value,
+				$('titre').value,
+				$('artist').value,
+			];
+			console.log(name, anime, op, titre, artist);
+			socket.emit('answer', new Answer(name, anime, op, titre, artist));
+			$('f').reset();
+		}
+	}
+
+</script>
+
+</html>
