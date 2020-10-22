@@ -1,0 +1,17 @@
+{
+  "name": "group_maker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "http": "0.0.1-security",
+    "socket.io": "^2.3.0"
+  }
+}

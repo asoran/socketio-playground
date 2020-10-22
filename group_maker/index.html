@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+	<title>Document</title>
+
+	<script>
+		const $ = document.getElementById.bind(document);
+
+		const IP = 'http://asoran.freeboxos.fr';
+		const PORT = 30000
+		const socket = io(IP + ':' + PORT);
+
+		const hash = document.location.hash.substring(1);
+		const INFO = ['Altan', 'Anaïs', 'Axel', 'Salim', 'Benoît', 'Chahinaz', 'Christelle', 'Dylan', 'Emilie', 'Abdou', 'Guillaume', 'Jonathan', 'Judicaël', 'Karim', 'Kevin', 'Nicolas B', 'Nicolas F', 'Kylian', 'Ludovic', 'Léo', 'Mélissa', 'Nathan', 'NASH?', 'Nils', 'Raphaël', 'Ricardo', 'Remi', 'Sacha', 'Tanguy', 'Vincent', 'Julien', 'Lisa', 'JP', 'Yoann', 'Yohann'];
+		const LOGI = ['Altan', 'Axel', 'Salim', 'Emilie', 'Guillaume', 'Judicaël', 'Kevin', 'Nicolas B', 'Nicolas F', 'Mélissa', 'Nils', 'Remi', 'Tanguy', 'Vincent'];
+		const OTHER = ['Test', 'Hehe', 'Nope', 'Lol', 'UwU'];
+
+		socket.emit('poll', hash);
+		socket.on('poll', (room) => {
+			if (room == undefined) {
+				const h = hash.toLocaleLowerCase();
+				const peps = h.startsWith('info') ? INFO : h.startsWith('logi') ? LOGI : OTHER;
+				socket.emit('create', { peoples: peps, name: hash });
+			} else {
+				edit(room);
+			}
+		});
+
+		function edit(_room) {
+			const room = _room;
+			const { name, peoples } = room;
+
+			$('main').ondrop = drop;
+			$('main').ondragover = allowDrop;
+
+			// create divs
+			peoples.forEach(({ name, id, x, y }) => {
+				// console.log(name, id, x, y);
+				const div = document.createElement('div');
+				div.id = id;
+				div.classList.add('drag');
+				div.draggable = true;
+				div.ondragstart = drag;
+				div.style.left = x + 'px';
+				div.style.top = y + 'px';
+				div.innerText = name;
+				$('main').appendChild(div);
+			});
+
+			socket.on('change', data => {
+				// console.log(data);
+				const { id, x, y } = data;
+				const _name = data.name;
+				if (name === _name) {
+					const div = $(id);
+					div.style.left = x + 'px';
+					div.style.top = y + 'px';
+				};
+			});
+
+			function allowDrop(ev) {
+				ev.preventDefault();
+				ev.dataTransfer.dropEffect = 'copy';
+			}
+
+			function drag(ev) {
+				// console.log(ev);
+				const target = ev.target;
+				ev.dataTransfer.setData("text", JSON.stringify({
+					id: target.id,
+					x: ev.x - target.offsetLeft,
+					y: ev.y - target.offsetTop,
+				}));
+				ev.dataTransfer.effectAllowed = 'copy';
+			}
+
+			function drop(ev) {
+				// console.log(ev);
+				ev.preventDefault();
+				const data = JSON.parse(ev.dataTransfer.getData("text"));
+				const id = data.id;
+				const x = (ev.x - data.x);
+				const y = (ev.y - data.y);
+
+				socket.emit('change', { name, id, x, y });
+			}
+		}
+
+	</script>
+	<style>
+		body {
+			margin: 0;
+		}
+
+		#main {
+			background-color: antiquewhite;
+			width: 100vw;
+			height: 100vh;
+		}
+
+		.drag {
+			width: 100px;
+			height: 25px;
+			border: 1px solid black;
+			background-color: burlywood;
+
+			position: absolute;
+			cursor: move;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="main"></div>
+</body>
+
+</html>
