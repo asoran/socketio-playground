@@ -8,8 +8,13 @@ const log = console.log;
 const PORT = process.env.PORT;
 
 function handler(req, res) {
+	// console.log(req.url);
 	res.writeHead(200);
-	res.end(fs.readFileSync('index.html'));
+	if ((req.url || null) == '/socket.io.js') {
+		res.end(fs.readFileSync('socket.io.js'));
+	} else {
+		res.end(fs.readFileSync('index.html'));
+	}
 };
 
 http.listen(PORT, () => log(`Server listening on port: ${PORT}`));
