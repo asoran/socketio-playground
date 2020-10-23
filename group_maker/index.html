@@ -9,10 +9,7 @@
 
 	<script>
 		const $ = document.getElementById.bind(document);
-
-		const IP = 'localhost';
-		const PORT = 3000;
-		const socket = io(IP + ':' + PORT);
+		const socket = io();
 
 		const hash = document.location.hash.substring(1);
 		const INFO = ['Altan', 'Anaïs', 'Axel', 'Salim', 'Benoît', 'Chahinaz', 'Christelle', 'Dylan', 'Emilie', 'Abdou', 'Guillaume C', 'Jonathan', 'Judicaël', 'Karim', 'Kevin', 'Nicolas B', 'Nicolas F', 'Kylian', 'Ludovic', 'Léo', 'Mélissa', 'Nathan', 'Guillaume M', 'Nils', 'Raphaël', 'Ricardo', 'Remi', 'Sacha', 'Tanguy', 'Vincent', 'Julien', 'Lisa', 'JP', 'Yoann', 'Yohann'];
